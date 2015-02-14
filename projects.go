@@ -2,6 +2,7 @@ package gogitlab
 
 import (
 	"encoding/json"
+	"net/url"
 	"strconv"
 )
 
@@ -207,4 +208,16 @@ func (g *Gitlab) ProjectMergeRequests(id string, page int, per_page int, state s
 	}
 
 	return mr, err
+}
+
+func (g *Gitlab) AddMergeRequest(id, sourceBranch, targetBranch, title string) error {
+	path := g.ResourceUrl(project_url_merge_requests, map[string]string{":id": id})
+	var err error
+	v := url.Values{}
+	v.Set("source_branch", sourceBranch)
+	v.Set("target_branch", targetBranch)
+	v.Set("title", title)
+	body := v.Encode()
+	_, err = g.buildAndExecRequest("POST", path, []byte(body))
+	return err
 }
